@@ -1,0 +1,2 @@
+Adv,Advil,88,N,50mg,50.0,75.0,Wyeth,02/25
+Red,Redoxon,80,Y,1gr,15.0,30.0,Bayer,03/28

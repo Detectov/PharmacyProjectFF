@@ -1,0 +1,18 @@
+Jared,1234
+Pedro,a
+Pedro,a
+Mou,b
+a,a
+Pancho32,bingbang
+a,a
+a,a
+luis,1234
+b,b
+juan,1234
+1,1
+<<<<<<< HEAD
+Tere ,1234
+Pedro,hola
+Pedro,Pedro
+=======
+>>>>>>> parent of e04fda0 (CON FACTURA)
