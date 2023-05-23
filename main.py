@@ -41,9 +41,7 @@ c.execute("""CREATE TABLE if not exists sales(
             subtotal real,
             total real
 )""")
-
 conn.commit()
-
 conn.close()
 
 class Login(QDialog):
@@ -121,10 +119,8 @@ class AddProduct(QDialog):
         self.donebutton.clicked.connect(self.backtomenu)
         self.donebutton.clicked.connect(self.savedata)
     def savedata(self):
-        #conn = sqlite3.connect('sanpablo.db')
-        #c = conn.cursor() 
-
-        #c.execute("INSERT INTO products (sku, name, stock, tax, presentation, costvalue, salevalue, laboratory, expdate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", (self.skuinput.text(), self.nameinput.text(), self.stockinput.text(), self.taxinput.text(), self.presinput.text(), self.costinput.text(), self.saleinput.text(), self.labinput.text(), self.expdate.text()))
+        conn = sqlite3.connect('sanpablo.db')
+        c = conn.cursor() 
         proddict = {
             "sku" : self.nameinput.text()[0:3],
             "name" : self.nameinput.text(),
@@ -139,13 +135,12 @@ class AddProduct(QDialog):
         if not proddict["sku"] or not proddict["name"] or not proddict["stock"] or not proddict["tax"] or not proddict["presentation"] or not proddict["costvalue"] or not proddict["salevalue"] or not proddict["laboratory"] or not proddict["expdate"]:
                 QtWidgets.QMessageBox.warning(self, 'Error', 'Please enter all values')
                 return
-        with open('products.txt', 'a') as f:
-            f.write('{},{},{},{},{},{},{},{},{}\n'.format(proddict["sku"], proddict["name"], proddict["stock"], proddict["tax"], proddict["presentation"], proddict["costvalue"], proddict["salevalue"], proddict["laboratory"], proddict["expdate"]))
+        c.execute("INSERT INTO products VALUES (null,?,?,?,?,?,?,?,?,?)", (proddict["sku"], proddict["name"], proddict["stock"], proddict["tax"], proddict["presentation"], proddict["costvalue"], proddict["salevalue"], proddict["laboratory"], proddict["expdate"]))
         
         QtWidgets.QMessageBox.information(self, 'Product added', 'The product has been added!')
         
-        #conn.commit()
-        #conn.close()
+        conn.commit()
+        conn.close()
             
          
     def backtomenu(self):
