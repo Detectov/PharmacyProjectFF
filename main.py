@@ -8,9 +8,16 @@ import sqlite3
 
 products = []
 sales = []
-conn = sqlite3.connect('database.db')
+conn = sqlite3.connect('sanpablo.db')
 
 c = conn.cursor()
+
+c.execute ("""CREATE TABLE if not exists users(
+            id integer primary key autoincrement,
+            username text,
+            password text
+)""")
+
 
 c.execute("""CREATE TABLE if not exists products(
             id integer primary key autoincrement,
@@ -34,6 +41,10 @@ c.execute("""CREATE TABLE if not exists sales(
             subtotal real,
             total real
 )""")
+
+conn.commit()
+
+conn.close()
 
 class Login(QDialog):
     def __init__(self):
@@ -109,7 +120,11 @@ class AddProduct(QDialog):
         self.backbutton.clicked.connect(self.backtomenu)
         self.donebutton.clicked.connect(self.backtomenu)
         self.donebutton.clicked.connect(self.savedata)
-    def savedata(self): 
+    def savedata(self):
+        #conn = sqlite3.connect('sanpablo.db')
+        #c = conn.cursor() 
+
+        #c.execute("INSERT INTO products (sku, name, stock, tax, presentation, costvalue, salevalue, laboratory, expdate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", (self.skuinput.text(), self.nameinput.text(), self.stockinput.text(), self.taxinput.text(), self.presinput.text(), self.costinput.text(), self.saleinput.text(), self.labinput.text(), self.expdate.text()))
         proddict = {
             "sku" : self.nameinput.text()[0:3],
             "name" : self.nameinput.text(),
@@ -129,7 +144,8 @@ class AddProduct(QDialog):
         
         QtWidgets.QMessageBox.information(self, 'Product added', 'The product has been added!')
         
-           
+        #conn.commit()
+        #conn.close()
             
          
     def backtomenu(self):
