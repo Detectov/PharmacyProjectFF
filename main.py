@@ -135,7 +135,12 @@ class AddProduct(QDialog):
         if not proddict["sku"] or not proddict["name"] or not proddict["stock"] or not proddict["tax"] or not proddict["presentation"] or not proddict["costvalue"] or not proddict["salevalue"] or not proddict["laboratory"] or not proddict["expdate"]:
                 QtWidgets.QMessageBox.warning(self, 'Error', 'Please enter all values')
                 return
-        c.execute("INSERT INTO products VALUES (null,?,?,?,?,?,?,?,?,?)", (proddict["sku"], proddict["name"], proddict["stock"], proddict["tax"], proddict["presentation"], proddict["costvalue"], proddict["salevalue"], proddict["laboratory"], proddict["expdate"]))
+        for product in products:
+            if product["sku"] == proddict["sku"]:
+                QtWidgets.QMessageBox.warning(self, 'Error', 'Product already exists')
+                return
+        for p in products:
+            c.execute("INSERT INTO products VALUES (p['sku'], p['name'], p['stock'], p['tax'], p['presentation'], p['costvalue'], p['salevalue'], p['laboratory'], p['expdate'])")
         
         QtWidgets.QMessageBox.information(self, 'Product added', 'The product has been added!')
         
