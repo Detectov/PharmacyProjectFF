@@ -1,13 +1,40 @@
 import sys 
-from PyQt5 import QtWidgets, QtGui
+from PyQt5 import QtWidgets, QtGui, QtCore
 from PyQt5.QtWidgets import QDialog, QApplication
 from PyQt5.uic import loadUi
 from datetime import date
 from PyQt5.QtWidgets import QMainWindow
-import json
+import sqlite3
 
 products = []
 sales = []
+conn = sqlite3.connect('database.db')
+
+c = conn.cursor()
+
+c.execute("""CREATE TABLE if not exists products(
+            id integer primary key autoincrement,
+            sku text,
+            name text,
+            stock integer,
+            tax text,
+            presentation text,
+            costvalue real,
+            salevalue real,
+            laboratory text,
+            expdate text
+)""")
+c.execute("""CREATE TABLE if not exists sales(
+            id integer primary key autoincrement,
+            date text,
+            soldprod text,
+            amount integer,
+            billed text,
+            method text,
+            subtotal real,
+            total real
+)""")
+
 class Login(QDialog):
     def __init__(self):
         super(Login,self).__init__()
