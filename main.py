@@ -282,6 +282,8 @@ class ProdTable(QDialog):
         self.loaddata()
         
     def loaddata(self):
+        conn = sqlite3.connect('sanpablo.db')
+        c = conn.cursor()
         products = []
         with open('products.txt', 'r') as f:
             for line in f:
