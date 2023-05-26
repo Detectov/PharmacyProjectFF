@@ -139,9 +139,8 @@ class AddProduct(QDialog):
             if product["sku"] == proddict["sku"]:
                 QtWidgets.QMessageBox.warning(self, 'Error', 'Product already exists')
                 return
-        for p in products:
-            c.execute("INSERT INTO products VALUES (p['sku'], p['name'], p['stock'], p['tax'], p['presentation'], p['costvalue'], p['salevalue'], p['laboratory'], p['expdate'])")
-        
+        query = "INSERT INTO products (sku, name, stock, tax, presentation, costvalue, salevalue, laboratory, expdate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
+        c.execute(query, (proddict["sku"], proddict["name"], proddict["stock"], proddict["tax"], proddict["presentation"], proddict["costvalue"], proddict["salevalue"], proddict["laboratory"], proddict["expdate"]))
         QtWidgets.QMessageBox.information(self, 'Product added', 'The product has been added!')
         
         conn.commit()
@@ -150,6 +149,7 @@ class AddProduct(QDialog):
          
     def backtomenu(self):
         menu=Menu()
+
         widget.addWidget(menu)
         widget.setCurrentIndex(widget.currentIndex()+1)
         
@@ -160,6 +160,7 @@ class AddSale(QDialog):
         widget.setFixedHeight(480)
         widget.setFixedWidth(772)
         self.backbutton.clicked.connect(self.backtomenu)
+        self.addbutton.clicked.connect(self.savedata)
         self.donebutton.clicked.connect(self.backtomenu)
         self.donebutton.clicked.connect(self.savedata)
 
