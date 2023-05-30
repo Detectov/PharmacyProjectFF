@@ -54,31 +54,39 @@ class Login(QDialog):
         
 
     def login(self):
-        username = self.username_input.text()
-        password = self.password_input.text()
-        with open('users.txt', 'r') as f:
-            for line in f:
-                u, p = line.strip().split(',')
-                if u == username and p == password:
-                    QtWidgets.QMessageBox.information(self, 'Login succesful!', 'Welcome, {}!'.format(username))
-                    menu=Menu()
-                    widget.addWidget(menu)
-                    widget.setCurrentIndex(widget.currentIndex()+1)
-                    widget.setCurrentIndex(widget.currentIndex()+1)
-                    return
-        QtWidgets.QMessageBox.warning(self, 'Login failed', 'Username or password not valid')
+        conn = sqlite3.connect('sanpablo.db')
+        c = conn.cursor()
+        query = "SELECT username, password FROM users WHERE username = ? AND password = ? "
+        c.execute(query, (self.username_input.text(), self.password_input.text()))
+        f = c.fetchall()
+        print(f)
+        if len(f) > 0:
+            QtWidgets.QMessageBox.information(self, 'Login succesful!', 'Welcome, {}!'.format(self.username_input.text()))
+            menu=Menu()
+            widget.addWidget(menu)
+            widget.setCurrentIndex(widget.currentIndex()+1)
+        else:
+            QtWidgets.QMessageBox.warning(self, 'Login failed', 'Username or password not valid')
+        conn.commit()
+        conn.close()
+        return
+        
         
     def signup(self):
+        conn = sqlite3.connect('sanpablo.db')
+        c = conn.cursor()
         username = self.username_input.text()
         password = self.password_input.text()
         if not username or not password:
             QtWidgets.QMessageBox.warning(self, 'Error', 'You need to enter a username and a password')
             return
         
-        with open('users.txt', 'a') as f:
-            f.write('{},{}\n'.format(username, password))
-
+        query = "INSERT INTO users (username, password) VALUES (?, ?)"
+        c.execute(query, (username, password))
         QtWidgets.QMessageBox.information(self, 'Account created', 'The account has been created!')
+
+        conn.commit()
+        conn.close()
 
 
     
@@ -155,17 +163,25 @@ class AddProduct(QDialog):
         
 class AddSale(QDialog):
     def __init__(self):
+        self.products = []
         super(AddSale, self).__init__()
         loadUi("createsale.ui", self)
         widget.setFixedHeight(480)
         widget.setFixedWidth(772)
         self.backbutton.clicked.connect(self.backtomenu)
-        self.addbutton.clicked.connect(self.savedata)
-        self.donebutton.clicked.connect(self.backtomenu)
+        self.addbutton.clicked.connect(self.storedata)
         self.donebutton.clicked.connect(self.savedata)
+        
+        
+    def reset(self):
+        self.soldinput.setText("")
+        self.amountinput.setText("")
+        self.billedinput.setText("")
+        self.methodinput.setText("")
 
-    def savedata(self):
-        saledict = {
+        
+    def storedata(self):
+        product = {
             "date" : date.today(),
             "soldprod" : self.soldinput.text(),
             "amount" : int(self.amountinput.text()),
@@ -176,40 +192,47 @@ class AddSale(QDialog):
         }
         if not "soldprod" or not "amount" or not "billed" or not "method":
                 QtWidgets.QMessageBox.warning(self, 'Error', 'Please enter all values')
-                return
-        with open('products.txt', 'r') as f:
-            products = []
-            for line in f:
-                sku, name, stock, tax, presentation, costvalue, salevalue, laboratory, expdate = line.strip().split(',')
-                products.append({
-                    "sku" : sku,
-                    "name" : name,
-                    "stock" : int(stock),
-                    "tax" : tax,
-                    "presentation" : presentation,
-                    "costvalue" : float(costvalue),
-                    "salevalue" : float(salevalue),
-                    "laboratory" : laboratory,
-                    "expdate" : expdate
-                })
-                for product in products:
-                    if product["name"] == saledict["soldprod"]:
-                        if product["stock"] >= saledict["amount"]:
-                            product["stock"] -= saledict["amount"]
-                            with open('products.txt', 'w') as f:
-                                for p in products:
-                                    f.write('{},{},{},{},{},{},{},{},{}\n'.format(p["sku"], p["name"], p["stock"], p["tax"], p["presentation"], p["costvalue"], p["salevalue"], p["laboratory"], p["expdate"]))
-                            saledict["subtotal"] = product["salevalue"]*saledict["amount"]
-                            saledict["total"] = saledict["subtotal"]*1.16 if product["tax"] == "Y" else saledict["subtotal"]
-                            with open('sales.txt', 'a') as f:
-                                    f.write('{},{},{},{},{},{},{}\n'.format(saledict["date"], saledict["soldprod"], saledict["amount"], saledict["subtotal"], saledict["total"], saledict["method"], saledict["billed"]))
-                            QtWidgets.QMessageBox.information(self, 'Sale added', 'The sale has been added!')
-                            return
-                            
+        else:
+            QtWidgets.QMessageBox.information(self, 'Product added', 'The product has been added!')
+            self.products.append(product)
+        self.reset()
+        
+
+    def savedata(self):
+        conn = sqlite3.connect('sanpablo.db')
+        c = conn.cursor()
+        for i in self.products:
+            saledict = i
+            product = saledict["soldprod"].strip()
+            query = "SELECT * FROM products WHERE name = ?"
+            c.execute(query, (product,))
+            f = c.fetchall()
+            if len(f) > 0:
+                for row in f:
+                    row = list(row)
+                    if row[3] >= saledict["amount"]:
+                        saledict["subtotal"] = row[7] * saledict["amount"]
+                        if row[4] == "Y":
+                            saledict["total"] = saledict["subtotal"] * 1.16
                         else:
-                            QtWidgets.QMessageBox.warning(self, 'Error', "There's not enough stock for that sale")
-                            return
-        QtWidgets.QMessageBox.warning(self, 'Error', 'Product not found')
+                            saledict["total"] = saledict["subtotal"]
+                        row[3] -= saledict["amount"]
+                        query = "INSERT INTO sales (date, soldprod, amount, billed, method, subtotal, total) VALUES (?, ?, ?, ?, ?, ?, ?)"                            
+                        c.execute(query, (saledict["date"], saledict["soldprod"], saledict["amount"], saledict["billed"], saledict["method"], saledict["subtotal"], saledict["total"]))
+                        conn.commit()
+                        QtWidgets.QMessageBox.information(self, 'Sale added', 'The sale has been added!')
+                        query = "UPDATE products SET stock = ? WHERE name = ?"
+                        c.execute(query, (row[3], product))
+                        conn.commit()
+                    else:
+                        QtWidgets.QMessageBox.warning(self, 'Error', "There's not enough stock for that sale")
+            else:
+                QtWidgets.QMessageBox.warning(self, 'Error', 'Product not found')
+        conn.commit()
+        conn.close()
+        self.products = []
+        self.backtomenu()
+
     def backtomenu(self):
         menu=Menu()
         widget.addWidget(menu)
