@@ -308,35 +308,21 @@ class ProdTable(QDialog):
     def loaddata(self):
         conn = sqlite3.connect('sanpablo.db')
         c = conn.cursor()
-        products = []
-        with open('products.txt', 'r') as f:
-            for line in f:
-                values = line.strip().split(',')
-                product = {
-                    "sku": values[0],
-                    "name": values[1],
-                    "stock": values[2],
-                    "tax": values[3],
-                    "presentation": (values[4]),
-                    "costvalue": float(values[5]),
-                    "salevalue": float(values[6]),
-                    "laboratory": values[7],
-                    "expdate": values[8]
-                }
-                products.append(product)
+        c.execute("SELECT * FROM products")
+        products = c.fetchall()
         row = 0
         self.tableWidget.setRowCount(len(products))
         for product in products:
-            self.tableWidget.setItem(row, 0, QtWidgets.QTableWidgetItem(product["sku"]))
-            self.tableWidget.setItem(row, 1, QtWidgets.QTableWidgetItem(product["name"]))
-            self.tableWidget.setItem(row, 2, QtWidgets.QTableWidgetItem(product["stock"]))
-            self.tableWidget.setItem(row, 3, QtWidgets.QTableWidgetItem(product["tax"]))
-            self.tableWidget.setItem(row, 4, QtWidgets.QTableWidgetItem(str(product["presentation"])))
-            self.tableWidget.setItem(row, 5, QtWidgets.QTableWidgetItem(str(product["costvalue"])))
-            self.tableWidget.setItem(row, 6, QtWidgets.QTableWidgetItem(str(product["salevalue"])))
-            self.tableWidget.setItem(row, 7, QtWidgets.QTableWidgetItem(product["laboratory"]))
-            self.tableWidget.setItem(row, 8, QtWidgets.QTableWidgetItem(str(product["expdate"])))
-            row += 1 
+            self.tableWidget.setItem(row, 0, QtWidgets.QTableWidgetItem(product[1]))
+            self.tableWidget.setItem(row, 1, QtWidgets.QTableWidgetItem(product[2]))
+            self.tableWidget.setItem(row, 2, QtWidgets.QTableWidgetItem(str(product[3])))
+            self.tableWidget.setItem(row, 3, QtWidgets.QTableWidgetItem(product[4]))
+            self.tableWidget.setItem(row, 4, QtWidgets.QTableWidgetItem(product[5]))
+            self.tableWidget.setItem(row, 5, QtWidgets.QTableWidgetItem(str(product[6])))
+            self.tableWidget.setItem(row, 6, QtWidgets.QTableWidgetItem(str(product[7])))
+            self.tableWidget.setItem(row, 7, QtWidgets.QTableWidgetItem(product[8]))
+            self.tableWidget.setItem(row, 8, QtWidgets.QTableWidgetItem(str(product[9])))
+            row += 1
     
     def backtoreports(self):
         reports=Reports()
@@ -361,30 +347,20 @@ class SalesTable(QDialog):
         self.loaddata()
         
     def loaddata(self):
-        sales = []
-        with open('sales.txt', 'r') as f:
-            for line in f:
-                values = line.strip().split(',')
-                sale = {
-                    "date": values[0],
-                    "soldprod": values[1],
-                    "amount": values[2],
-                    "subtotal": values[3],
-                    "total": values[4],
-                    "method": values[5],
-                    "billed": values[6]
-                }
-                sales.append(sale)
+        conn = sqlite3.connect('sanpablo.db')
+        c = conn.cursor()
+        c.execute("SELECT * FROM sales")
+        sales = c.fetchall()
         row = 0
         self.tableWidget.setRowCount(len(sales))
         for sale in sales:
-            self.tableWidget.setItem(row, 0, QtWidgets.QTableWidgetItem(str(sale["date"])))
-            self.tableWidget.setItem(row, 1, QtWidgets.QTableWidgetItem(sale["soldprod"]))
-            self.tableWidget.setItem(row, 2, QtWidgets.QTableWidgetItem(str(sale["amount"])))
-            self.tableWidget.setItem(row, 3, QtWidgets.QTableWidgetItem(str(sale["subtotal"])))
-            self.tableWidget.setItem(row, 4, QtWidgets.QTableWidgetItem(str(sale["total"])))
-            self.tableWidget.setItem(row, 5, QtWidgets.QTableWidgetItem(sale["method"]))
-            self.tableWidget.setItem(row, 6, QtWidgets.QTableWidgetItem(sale["billed"]))
+            self.tableWidget.setItem(row, 0, QtWidgets.QTableWidgetItem(sale[1]))
+            self.tableWidget.setItem(row, 1, QtWidgets.QTableWidgetItem(sale[2]))
+            self.tableWidget.setItem(row, 2, QtWidgets.QTableWidgetItem(str(sale[3])))
+            self.tableWidget.setItem(row, 3, QtWidgets.QTableWidgetItem(str(sale[6])))
+            self.tableWidget.setItem(row, 4, QtWidgets.QTableWidgetItem(str(sale[7])))
+            self.tableWidget.setItem(row, 5, QtWidgets.QTableWidgetItem(str(sale[5])))
+            self.tableWidget.setItem(row, 6, QtWidgets.QTableWidgetItem(str(sale[4])))
             row += 1
     
     def backtoreports(self):
@@ -440,31 +416,21 @@ class SalesByCard(QDialog):
         self.loaddata()
 
     def loaddata(self):
-        sales = []
-        with open('sales.txt', 'r') as f:
-            for line in f:
-                values = line.strip().split(',')
-                sale = {
-                    "date": values[0],
-                    "soldprod": values[1],
-                    "amount": values[2],
-                    "subtotal": values[3],
-                    "total": values[4],
-                    "method": values[5],
-                    "billed": values[6]
-                }
-                sales.append(sale)
+        conn = sqlite3.connect('sanpablo.db')
+        c = conn.cursor()
+        c.execute("SELECT * FROM sales")
+        sales = c.fetchall()
         row = 0
+        self.tableWidget.setRowCount(len(sales))
         for sale in sales:
-            if sale["method"] == "Card":
-                self.tableWidget.setRowCount(len(sales))
-                self.tableWidget.setItem(row, 0, QtWidgets.QTableWidgetItem(str(sale["date"])))
-                self.tableWidget.setItem(row, 1, QtWidgets.QTableWidgetItem(sale["soldprod"]))
-                self.tableWidget.setItem(row, 2, QtWidgets.QTableWidgetItem(str(sale["amount"])))
-                self.tableWidget.setItem(row, 3, QtWidgets.QTableWidgetItem(str(sale["subtotal"])))
-                self.tableWidget.setItem(row, 4, QtWidgets.QTableWidgetItem(str(sale["total"])))
-                self.tableWidget.setItem(row, 5, QtWidgets.QTableWidgetItem(sale["method"]))
-                self.tableWidget.setItem(row, 6, QtWidgets.QTableWidgetItem(sale["billed"]))
+            if sale[5] == "Card":
+                self.tableWidget.setItem(row, 0, QtWidgets.QTableWidgetItem(sale[1]))
+                self.tableWidget.setItem(row, 1, QtWidgets.QTableWidgetItem(sale[2]))
+                self.tableWidget.setItem(row, 2, QtWidgets.QTableWidgetItem(str(sale[3])))
+                self.tableWidget.setItem(row, 3, QtWidgets.QTableWidgetItem(str(sale[6])))
+                self.tableWidget.setItem(row, 4, QtWidgets.QTableWidgetItem(str(sale[7])))
+                self.tableWidget.setItem(row, 5, QtWidgets.QTableWidgetItem(str(sale[5])))
+                self.tableWidget.setItem(row, 6, QtWidgets.QTableWidgetItem(str(sale[4])))
                 row += 1
             
     
@@ -490,31 +456,21 @@ class SalesByCash(QDialog):
         self.loaddata()
 
     def loaddata(self):
-        sales = []
-        with open('sales.txt', 'r') as f:
-            for line in f:
-                values = line.strip().split(',')
-                sale = {
-                    "date": values[0],
-                    "soldprod": values[1],
-                    "amount": values[2],
-                    "subtotal": values[3],
-                    "total": values[4],
-                    "method": values[5],
-                    "billed": values[6]
-                }
-                sales.append(sale)
+        conn = sqlite3.connect('sanpablo.db')
+        c = conn.cursor()
+        c.execute("SELECT * FROM sales")
+        sales = c.fetchall()
         row = 0
-        for i in sales:
-            if i["method"] == "Cash":
-                self.tableWidget.setRowCount(len(sales))
-                self.tableWidget.setItem(row, 0, QtWidgets.QTableWidgetItem(str(i["date"])))
-                self.tableWidget.setItem(row, 1, QtWidgets.QTableWidgetItem(i["soldprod"]))
-                self.tableWidget.setItem(row, 2, QtWidgets.QTableWidgetItem(str(i["amount"])))
-                self.tableWidget.setItem(row, 3, QtWidgets.QTableWidgetItem(str(i["subtotal"])))
-                self.tableWidget.setItem(row, 4, QtWidgets.QTableWidgetItem(str(i["total"])))
-                self.tableWidget.setItem(row, 5, QtWidgets.QTableWidgetItem(i["method"]))
-                self.tableWidget.setItem(row, 6, QtWidgets.QTableWidgetItem(i["billed"]))
+        self.tableWidget.setRowCount(len(sales))
+        for sale in sales:
+            if sale[5] == "Cash":
+                self.tableWidget.setItem(row, 0, QtWidgets.QTableWidgetItem(sale[1]))
+                self.tableWidget.setItem(row, 1, QtWidgets.QTableWidgetItem(sale[2]))
+                self.tableWidget.setItem(row, 2, QtWidgets.QTableWidgetItem(str(sale[3])))
+                self.tableWidget.setItem(row, 3, QtWidgets.QTableWidgetItem(str(sale[6])))
+                self.tableWidget.setItem(row, 4, QtWidgets.QTableWidgetItem(str(sale[7])))
+                self.tableWidget.setItem(row, 5, QtWidgets.QTableWidgetItem(str(sale[5])))
+                self.tableWidget.setItem(row, 6, QtWidgets.QTableWidgetItem(str(sale[4])))
                 row += 1
             
 
@@ -567,31 +523,21 @@ class BILLED(QDialog):
         self.loaddata()
 
     def loaddata(self):
-        sales = []
-        with open('sales.txt', 'r') as f:
-            for line in f:
-                values = line.strip().split(',')
-                sale = {
-                    "date": values[0],
-                    "soldprod": values[1],
-                    "amount": values[2],
-                    "subtotal": values[3],
-                    "total": values[4],
-                    "method": values[5],
-                    "billed": values[6]
-                }
-                sales.append(sale)
+        conn = sqlite3.connect('sanpablo.db')
+        c = conn.cursor()
+        c.execute("SELECT * FROM sales")
+        sales = c.fetchall()
         row = 0
-        for i in sales:
-            if i["billed"] == "Y":
-                self.tableWidget.setRowCount(len(sales))
-                self.tableWidget.setItem(row, 0, QtWidgets.QTableWidgetItem(str(i["date"])))
-                self.tableWidget.setItem(row, 1, QtWidgets.QTableWidgetItem(i["soldprod"]))
-                self.tableWidget.setItem(row, 2, QtWidgets.QTableWidgetItem(str(i["amount"])))
-                self.tableWidget.setItem(row, 3, QtWidgets.QTableWidgetItem(str(i["subtotal"])))
-                self.tableWidget.setItem(row, 4, QtWidgets.QTableWidgetItem(str(i["total"])))
-                self.tableWidget.setItem(row, 5, QtWidgets.QTableWidgetItem(i["method"]))
-                self.tableWidget.setItem(row, 6, QtWidgets.QTableWidgetItem(i["billed"]))
+        self.tableWidget.setRowCount(len(sales))
+        for sale in sales:
+            if sale[4] == "Y":
+                self.tableWidget.setItem(row, 0, QtWidgets.QTableWidgetItem(sale[1]))
+                self.tableWidget.setItem(row, 1, QtWidgets.QTableWidgetItem(sale[2]))
+                self.tableWidget.setItem(row, 2, QtWidgets.QTableWidgetItem(str(sale[3])))
+                self.tableWidget.setItem(row, 3, QtWidgets.QTableWidgetItem(str(sale[6])))
+                self.tableWidget.setItem(row, 4, QtWidgets.QTableWidgetItem(str(sale[7])))
+                self.tableWidget.setItem(row, 5, QtWidgets.QTableWidgetItem(str(sale[5])))
+                self.tableWidget.setItem(row, 6, QtWidgets.QTableWidgetItem(str(sale[4])))
                 row += 1
             
     
@@ -617,31 +563,21 @@ class NOTBILLED(QDialog):
         self.loaddata()
 
     def loaddata(self):
-        sales = []
-        with open('sales.txt', 'r') as f:
-            for line in f:
-                values = line.strip().split(',')
-                sale = {
-                    "date": values[0],
-                    "soldprod": values[1],
-                    "amount": values[2],
-                    "subtotal": values[3],
-                    "total": values[4],
-                    "method": values[5],
-                    "billed": values[6]
-                }
-                sales.append(sale)
+        conn = sqlite3.connect('sanpablo.db')
+        c = conn.cursor()
+        c.execute("SELECT * FROM sales")
+        sales = c.fetchall()
         row = 0
-        for i in sales:
-            if i["billed"] == "N":
-                self.tableWidget.setRowCount(len(sales))
-                self.tableWidget.setItem(row, 0, QtWidgets.QTableWidgetItem(str(i["date"])))
-                self.tableWidget.setItem(row, 1, QtWidgets.QTableWidgetItem(i["soldprod"]))
-                self.tableWidget.setItem(row, 2, QtWidgets.QTableWidgetItem(str(i["amount"])))
-                self.tableWidget.setItem(row, 3, QtWidgets.QTableWidgetItem(str(i["subtotal"])))
-                self.tableWidget.setItem(row, 4, QtWidgets.QTableWidgetItem(str(i["total"])))
-                self.tableWidget.setItem(row, 5, QtWidgets.QTableWidgetItem(i["method"]))
-                self.tableWidget.setItem(row, 6, QtWidgets.QTableWidgetItem(i["billed"]))
+        self.tableWidget.setRowCount(len(sales))
+        for sale in sales:
+            if sale[4] == "N":
+                self.tableWidget.setItem(row, 0, QtWidgets.QTableWidgetItem(sale[1]))
+                self.tableWidget.setItem(row, 1, QtWidgets.QTableWidgetItem(sale[2]))
+                self.tableWidget.setItem(row, 2, QtWidgets.QTableWidgetItem(str(sale[3])))
+                self.tableWidget.setItem(row, 3, QtWidgets.QTableWidgetItem(str(sale[6])))
+                self.tableWidget.setItem(row, 4, QtWidgets.QTableWidgetItem(str(sale[7])))
+                self.tableWidget.setItem(row, 5, QtWidgets.QTableWidgetItem(str(sale[5])))
+                self.tableWidget.setItem(row, 6, QtWidgets.QTableWidgetItem(str(sale[4])))
                 row += 1
             
     
@@ -662,36 +598,23 @@ class viewProd(QDialog):
         self.donebutton.clicked.connect(self.loaddata)
         self.backbutton.clicked.connect(self.backtoreports)
     def loaddata(self):
-        products = []
-        with open("products.txt", "r") as f:
-            for line in f:
-                values = line.strip().split(",")
-                product = {
-                    "sku": values[0],
-                    "name": values[1],
-                    "stock": int(values[2]),
-                    "tax": values[3],
-                    "presentation": values[4],
-                    "costvalue": float(values[5]),
-                    "salevalue": float(values[6]),
-                    "laboratory": values[7],
-                    "expdate": values[8]
-                }
-                products.append(product)
-
+        conn = sqlite3.connect('sanpablo.db')
+        c = conn.cursor()
+        c.execute("SELECT * FROM products")
+        products = c.fetchall()
         row = 0
         self.tableWidget.setRowCount(len(products))
         for product in products:
-                if product["laboratory"] == self.labinput.text():
-                    self.tableWidget.setItem(row, 0, QtWidgets.QTableWidgetItem(product["sku"]))
-                    self.tableWidget.setItem(row, 1, QtWidgets.QTableWidgetItem(product["name"]))
-                    self.tableWidget.setItem(row, 2, QtWidgets.QTableWidgetItem(product["presentation"]))
-                    self.tableWidget.setItem(row, 3, QtWidgets.QTableWidgetItem(product["laboratory"]))
-                    self.tableWidget.setItem(row, 4, QtWidgets.QTableWidgetItem(str(product["stock"])))
-                    self.tableWidget.setItem(row, 5, QtWidgets.QTableWidgetItem(str(product["costvalue"])))
-                    self.tableWidget.setItem(row, 6, QtWidgets.QTableWidgetItem(str(product["salevalue"])))
-                    self.tableWidget.setItem(row, 7, QtWidgets.QTableWidgetItem(product["tax"]))
-                    self.tableWidget.setItem(row, 8, QtWidgets.QTableWidgetItem(str(product["expdate"])))
+                if product[8] == self.labinput.text():
+                    self.tableWidget.setItem(row, 0, QtWidgets.QTableWidgetItem(product[1]))
+                    self.tableWidget.setItem(row, 1, QtWidgets.QTableWidgetItem(product[2]))
+                    self.tableWidget.setItem(row, 2, QtWidgets.QTableWidgetItem(str(product[3])))
+                    self.tableWidget.setItem(row, 3, QtWidgets.QTableWidgetItem(product[4]))
+                    self.tableWidget.setItem(row, 4, QtWidgets.QTableWidgetItem(product[5]))
+                    self.tableWidget.setItem(row, 5, QtWidgets.QTableWidgetItem(str(product[6])))
+                    self.tableWidget.setItem(row, 6, QtWidgets.QTableWidgetItem(str(product[7])))
+                    self.tableWidget.setItem(row, 7, QtWidgets.QTableWidgetItem(product[8]))
+                    self.tableWidget.setItem(row, 8, QtWidgets.QTableWidgetItem(str(product[9])))
                     row += 1
     def backtoreports(self):
         reports=Reports()
